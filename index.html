@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arkade Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bottle-green: #1a3a2a;
+      --green-mid: #254d38;
+      --green-light: #2e6047;
+      --green-accent: #3d7a5a;
+      --green-glow: #4a9e6e;
+      --black: #0a0a0a;
+      --black-soft: #111410;
+      --gold: #c9a84c;
+      --gold-light: #e0c070;
+      --white: #f5f0e8;
+      --white-muted: #d8d0c0;
+      --gray: #8a8070;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Jost', sans-serif; background: var(--black); color: var(--white); overflow-x: hidden; cursor: none; }
+
+    /* CURSOR */
+    .cursor { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s ease; }
+    .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(201,168,76,0.5); border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.18s ease; }
+    @media (hover: none) { .cursor, .cursor-ring { display: none; } body { cursor: auto; } }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--green-accent); border-radius: 4px; }
+
+    /* NAV */
+    nav { height: 90px; background: #a5aba769; position: absolute; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 4rem; transition: all 0.4s ease; }
+    nav.scrolled { background: #977f3f;; backdrop-filter: blur(20px); padding: 0.8rem 4rem; border-bottom: 1px solid rgba(201,168,76,0.15); }
+    .nav-logo { display: flex; align-items: center; text-decoration: none; }
+    .nav-logo img { height: 150px; width: auto;  transition: all 0.3s ease; }
+    nav.scrolled .nav-logo img { height: 40px; }
+    
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.75rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white-muted); text-decoration: none; transition: color 0.3s ease; position: relative; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-cta { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); background: var(--gold); border: none; padding: 0.6rem 1.4rem; cursor: none; transition: all 0.3s ease; text-decoration: none; }
+    .nav-cta:hover { background: var(--gold-light); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 1.5px; background: var(--white); transition: all 0.3s ease; }
+    .mobile-menu { display: none; position: relative; inset: 0; z-index: 99; background: rgba(10,10,10,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem; }
+    .mobile-menu.open { display: flex; background: #977f3f; padding: 10px; position: absolute; top: 100; left: 0; right: 0; height: 80%;}
+    .mobile-menu a { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; letter-spacing: 0.2em; color: var(--white); text-decoration: none; transition: color 0.3s; }
+    .mobile-menu a:hover { color: var(--gold); }
+    @media (max-width: 900px) { nav { padding: 1rem 2rem; } nav.scrolled { padding: 0.7rem 2rem; } .nav-links, .nav-cta { display: none; } .hamburger { display: flex; } }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: var(--black-soft); }
+    .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26,58,42,0.6) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(26,58,42,0.3) 0%, transparent 60%); }
+    .hero-grid { position: absolute; inset: 0; opacity: 0.04; background-image: linear-gradient(var(--green-glow) 1px, transparent 1px), linear-gradient(90deg, var(--green-glow) 1px, transparent 1px); background-size: 60px 60px; }
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; padding: 2rem; }
+    
+    .hero-badge { display: inline-block; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,0.3); padding: 0.45rem 1.2rem; margin-bottom: 1.8rem; animation: fadeUp 1s ease 0.2s both; }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 7vw, 6.5rem); font-weight: 300; line-height: 1; letter-spacing: 0.05em; animation: fadeUp 1s ease 0.4s both; }
+    .hero-title .line2 { font-style: italic; color: var(--gold); }
+    .hero-sub { font-size: 0.8rem; font-weight: 300; letter-spacing: 0.3em; text-transform: uppercase; color: var(--white-muted); margin-top: 1.2rem; margin-bottom: 2.5rem; animation: fadeUp 1s ease 0.6s both; }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeUp 1s ease 0.8s both; }
+    .btn-primary { padding: 0.9rem 2.5rem; background: var(--bottle-green); border: 1px solid var(--green-accent); color: var(--white); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; cursor: none; transition: all 0.35s ease; position: relative; overflow: hidden; }
+    .btn-primary::before { content: ''; position: absolute; inset: 0; background: var(--green-accent); transform: translateX(-100%); transition: transform 0.35s ease; }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-gold { padding: 0.9rem 2.5rem; background: transparent; border: 1px solid rgba(201,168,76,0.5); color: var(--gold); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; cursor: none; transition: all 0.35s ease; }
+    .btn-gold:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+    .hero-scroll { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; animation: fadeUp 1s ease 1.2s both; }
+    .hero-scroll span { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gray); }
+    .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gray), transparent); animation: scrollPulse 2s ease infinite; }
+    @keyframes scrollPulse { 0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.2)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+    /* SHARED */
+    section { position: relative; }
+    .section-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 300; line-height: 1.1; }
+    .section-title em { font-style: italic; color: var(--gold); }
+    .section-desc { font-size: 0.9rem; font-weight: 300; line-height: 1.9; color: var(--white-muted); max-width: 540px; margin-top: 1.2rem; }
+    .divider { width: 60px; height: 1px; background: var(--green-accent); margin: 1.5rem 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 4rem; }
+    @media (max-width: 768px) { .container { padding: 0 1.5rem; } }
+
+    /* BRAND SPLIT */
+    .brand-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+    @media (max-width: 768px) { .brand-split { grid-template-columns: 1fr; min-height: auto; } }
+    .brand-panel { position: relative; overflow: hidden; cursor: none; min-height: 75vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 4rem; transition: all 0.5s ease; }
+    @media (max-width: 768px) { .brand-panel { padding: 3rem 2rem; min-height: 80vw; } }
+    .brand-panel::before { content: ''; position: absolute; inset: 0; transition: opacity 0.5s ease; z-index: 1; }
+    .panel-event { background: var(--bottle-green); }
+    .panel-event::before { background: radial-gradient(ellipse 80% 80% at 50% 100%, rgba(0,0,0,0.75) 0%, transparent 70%); }
+    .panel-construct { background: var(--black-soft); }
+    .panel-construct::before { background: radial-gradient(ellipse 80% 80% at 50% 100%, rgba(0,0,0,0.85) 0%, transparent 70%); }
+    .brand-panel-bg-img { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; transition: transform 0.8s ease, opacity 0.5s ease; opacity: 0.4; }
+    .brand-panel:hover .brand-panel-bg-img { transform: scale(1.05); opacity: 0.55; }
+    .panel-event .brand-panel-bg-img { background-image: url('decorevent.jpg'); }
+    .panel-construct .brand-panel-bg-img { background-image: url('immo&decor.jpg'); }
+    .panel-content { position: relative; z-index: 2; }
+    .panel-number { font-family: 'Cormorant Garamond', serif; font-size: 6rem; font-weight: 300; line-height: 1; color: rgba(201,168,76,0.15); position: absolute; top: -3.5rem; right: 0; pointer-events: none; user-select: none; }
+    .panel-tag { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,0.3); display: inline-block; padding: 0.3rem 0.8rem; margin-bottom: 1.2rem; }
+    .panel-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1; }
+    .panel-title em { font-style: italic; color: var(--gold); display: block; }
+    .panel-desc { font-size: 0.82rem; font-weight: 300; line-height: 1.8; color: var(--white-muted); margin: 1rem 0 1.8rem; max-width: 380px; }
+    .panel-link { display: inline-flex; align-items: center; gap: 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); text-decoration: none; transition: gap 0.3s ease; }
+    .panel-link::after { content: '→'; font-size: 1rem; transition: transform 0.3s ease; }
+    .panel-link:hover { gap: 1.2rem; }
+    .panel-separator { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), transparent); }
+
+    /* EVENT SECTION */
+    .event-section { background: linear-gradient(to bottom, var(--bottle-green), var(--black-soft)); padding: 8rem 0 6rem; }
+    .event-header { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; margin-bottom: 5rem; }
+    @media (max-width: 768px) { .event-header { grid-template-columns: 1fr; gap: 2rem; margin-bottom: 3rem; } }
+    .event-stats { display: flex; gap: 3rem; justify-content: flex-end; }
+    @media (max-width: 600px) { .event-stats { justify-content: flex-start; gap: 2rem; } }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white-muted); margin-top: 0.3rem; }
+    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5px; }
+    @media (max-width: 900px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .services-grid { grid-template-columns: 1fr; } }
+    .service-card { background: rgba(26,58,42,0.4); border: 1px solid rgba(74,158,110,0.15); padding: 2.5rem 2rem; position: relative; overflow: hidden; transition: all 0.4s ease; cursor: none; display: flex; flex-direction: column; }
+    .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--green-accent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+    .service-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(74,158,110,0.07) 0%, transparent 60%); opacity: 0; transition: opacity 0.4s ease; }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover::after { opacity: 1; }
+    .service-card:hover { transform: translateY(-4px); border-color: rgba(74,158,110,0.4); }
+    .service-icon { width: 48px; height: 48px; margin-bottom: 1.5rem; position: relative; z-index: 1; }
+    .service-icon svg { width: 100%; height: 100%; }
+    .service-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 0.8rem; position: relative; z-index: 1; }
+    .service-desc { font-size: 0.8rem; font-weight: 300; line-height: 1.8; color: var(--white-muted); flex: 1; position: relative; z-index: 1; }
+    .service-items { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; position: relative; z-index: 1; }
+    .service-tag { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green-glow); background: rgba(74,158,110,0.12); border: 1px solid rgba(74,158,110,0.25); padding: 0.3rem 0.7rem; }
+
+    /* GALERIE */
+    .products-section { background: var(--black-soft); padding: 7rem 0; }
+    .products-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; flex-wrap: wrap; gap: 1rem; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    @media (max-width: 768px) { .products-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .products-grid { grid-template-columns: 1fr; } }
+    .product-card { position: relative; overflow: hidden; cursor: none; aspect-ratio: 3/4; background: var(--bottle-green); }
+    .product-card:first-child { grid-row: span 2; aspect-ratio: auto; }
+    @media (max-width: 768px) { .product-card:first-child { grid-row: span 1; aspect-ratio: 3/4; } }
+    .product-bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 0.6s ease; }
+    .product-card:hover .product-bg { transform: scale(1.07); }
+    .product-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, transparent 100%); }
+    .product-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 1.8rem; transform: translateY(10px); opacity: 0; transition: all 0.4s ease; }
+    .product-card:hover .product-info { transform: translateY(0); opacity: 1; }
+    .product-label { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+    .product-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; line-height: 1.1; }
+
+    /* ── CATALOGUE ── */
+    .catalogue-section { background: var(--black); padding: 8rem 0; }
+    .catalogue-header { text-align: center; margin-bottom: 3.5rem; }
+    .catalogue-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 4rem; border: 1px solid rgba(74,158,110,0.25); width: fit-content; margin-left: auto; margin-right: auto; flex-wrap: wrap; }
+    .cat-tab { padding: 0.75rem 1.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white-muted); background: transparent; border: none; cursor: none; transition: all 0.3s ease; border-right: 1px solid rgba(74,158,110,0.25); }
+    .cat-tab:last-child { border-right: none; }
+    .cat-tab.active { background: var(--bottle-green); color: var(--white); }
+    .cat-tab:hover:not(.active) { background: rgba(26,58,42,0.3); color: var(--white); }
+    .catalogue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    @media (max-width: 900px) { .catalogue-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .catalogue-grid { grid-template-columns: 1fr; } }
+    .catalogue-grid.hidden { display: none; }
+    .cat-card { background: var(--black-soft); border: 1px solid rgba(74,158,110,0.12); overflow: hidden; transition: all 0.4s ease; cursor: none; display: flex; flex-direction: column; }
+    .cat-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .cat-img { height: 240px; overflow: hidden; background: var(--bottle-green); position: relative; }
+    .cat-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; display: block; }
+    .cat-card:hover .cat-img img { transform: scale(1.07); }
+    .cat-badge { position: absolute; top: 1rem; left: 1rem; font-size: 0.55rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; background: var(--gold); color: var(--black); padding: 0.28rem 0.65rem; }
+    .cat-body { padding: 1.8rem; flex: 1; display: flex; flex-direction: column; }
+    .cat-category { font-size: 0.58rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--green-glow); margin-bottom: 0.5rem; }
+    .cat-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; line-height: 1.2; margin-bottom: 0.8rem; }
+    .cat-desc { font-size: 0.78rem; font-weight: 300; line-height: 1.7; color: var(--white-muted); flex: 1; margin-bottom: 1.5rem; }
+    .cat-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.06); gap: 1rem; flex-wrap: wrap; }
+    .cat-price { display: flex; flex-direction: column; }
+    .cat-price-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray); }
+    .cat-price-value { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--gold); line-height: 1; }
+    .cat-price-unit { font-size: 0.62rem; color: var(--gray); }
+    .cat-cta { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--white); background: var(--bottle-green); border: 1px solid var(--green-accent); padding: 0.55rem 1.1rem; text-decoration: none; cursor: none; transition: all 0.3s ease; white-space: nowrap; }
+    .cat-cta:hover { background: var(--green-accent); }
+
+    /* CONSTRUCTING */
+    .construct-section { background: var(--black-soft); padding: 8rem 0; }
+    .construct-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    @media (max-width: 900px) { .construct-layout { grid-template-columns: 1fr; gap: 3rem; } }
+    .construct-visual { position: relative; aspect-ratio: 4/5; background: var(--black-soft); overflow: hidden; }
+    .construct-visual img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
+    .construct-visual:hover img { transform: scale(1.04); }
+    .construct-frame { position: absolute; top: -1.5rem; left: -1.5rem; right: 1.5rem; bottom: 1.5rem; border: 1px solid rgba(201,168,76,0.2); pointer-events: none; }
+    .construct-accent { position: absolute; top: -1.5rem; left: -1.5rem; width: 80px; height: 80px; border-top: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+    .construct-accent-br { position: absolute; bottom: 1.5rem; right: 1.5rem; width: 80px; height: 80px; border-bottom: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+    .construct-services { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 3rem; background: rgba(255,255,255,0.05); }
+    .cs-item { background: var(--black-soft); padding: 1.5rem; cursor: none; transition: background 0.3s ease; }
+    .cs-item:hover { background: rgba(26,58,42,0.4); }
+    .cs-num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: rgba(201,168,76,0.3); line-height: 1; }
+    .cs-title { font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; margin: 0.5rem 0 0.3rem; }
+    .cs-desc { font-size: 0.73rem; font-weight: 300; color: var(--white-muted); line-height: 1.7; }
+
+    /* TESTIMONIALS */
+    .testimonials-section { background: var(--bottle-green); padding: 6rem 0; overflow: hidden; }
+    .testimonials-track { display: flex; gap: 2rem; animation: testimonialScroll 30s linear infinite; width: max-content; }
+    .testimonials-track:hover { animation-play-state: paused; }
+    @keyframes testimonialScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .testi-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 2.5rem; width: 380px; flex-shrink: 0; }
+    .testi-quote { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 1rem; }
+    .testi-text { font-size: 0.85rem; font-weight: 300; line-height: 1.8; color: var(--white-muted); margin-bottom: 1.5rem; }
+    .testi-author { display: flex; align-items: center; gap: 1rem; }
+    .testi-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--green-accent); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--white); }
+    .testi-name { font-size: 0.78rem; font-weight: 500; }
+    .testi-role { font-size: 0.68rem; color: var(--gray); letter-spacing: 0.1em; }
+
+    /* PROCESS */
+    .process-section { background: var(--black-soft); padding: 7rem 0; }
+    .process-title { text-align: center; margin-bottom: 5rem; }
+    .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+    @media (max-width: 768px) { .process-steps { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .process-steps { grid-template-columns: 1fr; } }
+    .process-steps::before { content: ''; position: absolute; top: 2.2rem; left: 12%; right: 12%; height: 1px; background: linear-gradient(to right, transparent, var(--green-accent), transparent); }
+    @media (max-width: 768px) { .process-steps::before { display: none; } }
+    .process-step { text-align: center; padding: 0 2rem; display: flex; flex-direction: column; align-items: center; }
+    .step-circle { width: 48px; height: 48px; border-radius: 50%; background: var(--bottle-green); border: 1px solid var(--green-accent); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--gold); margin-bottom: 1.5rem; position: relative; z-index: 1; }
+    .step-title { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .step-desc { font-size: 0.75rem; font-weight: 300; line-height: 1.7; color: var(--white-muted); }
+
+    /* CTA */
+    .cta-section { background: var(--black); padding: 8rem 0; }
+    .cta-inner { background: linear-gradient(135deg, var(--bottle-green) 0%, var(--black-soft) 100%); border: 1px solid rgba(74,158,110,0.2); padding: 6rem; position: relative; overflow: hidden; text-align: center; }
+    @media (max-width: 768px) { .cta-inner { padding: 3rem 2rem; } }
+    .cta-inner::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(74,158,110,0.15) 0%, transparent 70%); pointer-events: none; }
+    .cta-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 300; line-height: 1; position: relative; z-index: 1; }
+    .cta-title em { font-style: italic; color: var(--gold); }
+    .cta-sub { font-size: 0.85rem; font-weight: 300; color: var(--white-muted); max-width: 500px; margin: 1.5rem auto 3rem; line-height: 1.8; position: relative; z-index: 1; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    /* FOOTER */
+    footer { background: #a5aba72b; border-top: 1px solid rgba(255,255,255,0.06); padding: 4rem 0 2rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+    @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-logo-img { display: block; height: 150px; width: auto; margin-bottom: 1rem;  }
+    .footer-about { font-size: 0.8rem; font-weight: 300; line-height: 1.8; color: var(--gray); max-width: 280px; }
+    .footer-socials { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .social-icon { width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--white-muted); text-decoration: none; transition: all 0.3s ease; cursor: none; }
+    .social-icon:hover { border-color: var(--gold); color: var(--gold); }
+    .footer-col h4 { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--white); margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .footer-col ul a { font-size: 0.78rem; font-weight: 300; color: var(--gray); text-decoration: none; transition: color 0.3s; }
+    .footer-col ul a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-copy { font-size: 0.7rem; font-weight: 300; color: var(--gray); letter-spacing: 0.1em; }
+    .footer-legal { display: flex; gap: 2rem; }
+    .footer-legal a { font-size: 0.7rem; color: var(--gray); text-decoration: none; transition: color 0.3s; }
+    .footer-legal a:hover { color: var(--white); }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .sep { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .sep-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .sep-icon { color: var(--gold); font-size: 0.7rem; }
+
+  </style>
+</head>
+<body>
+
+<!-- CURSEUR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar" class="nav-logo">
+    <img src="arkad-removebg-preview.png" alt="Arkade Group" />
+ 
+  <ul class="nav-links">
+    <li><a href="#event">Arkade Event</a></li>
+    <li><a href="#catalogue">Catalogue</a></li>
+    <li><a href="#construct">Arkade Constructing</a></li>
+    <li><a href="#process">Notre Approche</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Nous Contacter</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- MENU MOBILE -->
+<div class="mobile-menu" id="mobileMenu">
+
+  <a href="#event" onclick="closeMobileMenu()">Arkade Event</a>
+  <a href="#catalogue" onclick="closeMobileMenu()">Catalogue</a>
+  <a href="#construct" onclick="closeMobileMenu()">Arkade Constructing</a>
+  <a href="#process" onclick="closeMobileMenu()">Notre Approche</a>
+  <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+
+    <div class="hero-badge">Excellence &amp; Élégance</div>
+    <h1 class="hero-title">ARKADE<br><span class="line2">Group</span></h1>
+    <p class="hero-sub">Événements d'exception · Immobilier de prestige</p>
+    <div class="hero-btns">
+      <a href="#event" class="btn-primary"><span>Arkade Event</span></a>
+      <a href="#construct" class="btn-gold">Arkade Constructing</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Découvrir</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- BRAND SPLIT -->
+<section>
+  <div class="brand-split">
+    <div class="brand-panel panel-event">
+      <div class="brand-panel-bg-img"></div>
+      <div class="panel-content">
+        <div class="panel-number">01</div>
+        <div class="panel-tag">Événementiel</div>
+        <h2 class="panel-title">ARKADE<em>Event</em></h2>
+        <p class="panel-desc">De la couverture de chambre aux créations personnalisées, nous habillons vos moments précieux avec raffinement.</p>
+        <a href="#event" class="panel-link">Explorer nos prestations</a>
+      </div>
+    </div>
+    <div class="brand-panel panel-construct">
+      <div class="brand-panel-bg-img"></div>
+      <div class="panel-separator"></div>
+      <div class="panel-content">
+        <div class="panel-number">02</div>
+        <div class="panel-tag">Immobilier &amp; Décor</div>
+        <h2 class="panel-title">ARKADE<em>Constructing</em></h2>
+        <p class="panel-desc">Expertise immobilière et décoration d'intérieur d'exception pour transformer vos espaces en œuvres de vie.</p>
+        <a href="#construct" class="panel-link">Découvrir nos services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARKADE EVENT -->
+<section class="event-section" id="event">
+  <div class="container">
+    <div class="event-header">
+      <div>
+        <div class="section-label reveal">Arkade Event</div>
+        <h2 class="section-title reveal reveal-delay-1">L'art de <em>sublimer</em><br>vos événements</h2>
+        <div class="divider reveal reveal-delay-2"></div>
+        <p class="section-desc reveal reveal-delay-2">Chaque célébration mérite une mise en scène unique. Arkade Event crée des atmosphères inoubliables à travers des produits soigneusement sélectionnés et des prestations sur mesure.</p>
+      </div>
+      <div class="event-stats reveal reveal-delay-3">
+        <div class="stat"><div class="stat-num">200+</div><div class="stat-label">Événements</div></div>
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Sur mesure</div></div>
+        <div class="stat"><div class="stat-num">5★</div><div class="stat-label">Satisfaction</div></div>
+      </div>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="16" width="40" height="26" rx="2" stroke="#4a9e6e" stroke-width="1.5"/><path d="M4 20C14 16 20 22 24 20C28 18 34 16 44 20" stroke="#c9a84c" stroke-width="1.2" fill="none"/><rect x="18" y="8" width="12" height="10" rx="2" stroke="#4a9e6e" stroke-width="1.5"/><line x1="24" y1="8" x2="24" y2="4" stroke="#c9a84c" stroke-width="1.2"/></svg></div>
+        <h3 class="service-name">Couverture de Chambre</h3>
+        <p class="service-desc">Habillage élégant pour suites nuptiales et chambres d'hôtes. Création d'ambiances romantiques et luxueuses.</p>
+        <div class="service-items"><span class="service-tag">Suite nuptiale</span><span class="service-tag">Hôtel & Lodge</span><span class="service-tag">Romantique</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" stroke="#4a9e6e" stroke-width="1.5"/><circle cx="24" cy="24" r="8" fill="rgba(201,168,76,0.2)" stroke="#c9a84c" stroke-width="1.2"/><path d="M24 6L24 10M24 38L24 42M6 24L10 24M38 24L42 24" stroke="#4a9e6e" stroke-width="1.2"/></svg></div>
+        <h3 class="service-name">Décoration Événementielle</h3>
+        <p class="service-desc">Conception et réalisation de décors sur mesure pour mariages, baptêmes, anniversaires et réceptions.</p>
+        <div class="service-items"><span class="service-tag">Mariage</span><span class="service-tag">Baptême</span><span class="service-tag">Anniversaire</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon"><svg viewBox="0 0 48 48" fill="none"><path d="M16 8L32 8L36 18L24 44L12 18Z" stroke="#4a9e6e" stroke-width="1.5" fill="rgba(26,58,42,0.5)"/><path d="M12 18L36 18" stroke="#c9a84c" stroke-width="1.2"/><circle cx="20" cy="13" r="2.5" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/><circle cx="28" cy="13" r="2.5" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/></svg></div>
+        <h3 class="service-name">Paniers de Dragées</h3>
+        <p class="service-desc">Création de paniers de dragées élaborés et personnalisés, emballages haut de gamme pour marquer les instants précieux.</p>
+        <div class="service-items"><span class="service-tag">Mariage</span><span class="service-tag">Naissance</span><span class="service-tag">Premium</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon"><svg viewBox="0 0 48 48" fill="none"><path d="M8 36L18 18L28 28L34 20L42 36Z" stroke="#4a9e6e" stroke-width="1.5" fill="rgba(26,58,42,0.4)"/><circle cx="34" cy="14" r="5" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.15)"/></svg></div>
+        <h3 class="service-name">Accessoires Personnalisés</h3>
+        <p class="service-desc">Création d'accessoires uniques — cadres photo, serviette personnalisées, bouquets artificiels, coussins brodés — reflétant votre personnalité.</p>
+        <div class="service-items"><span class="service-tag">Sur mesure</span><span class="service-tag">Cadre & Photo</span><span class="service-tag">Artisanat</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALERIE -->
+<section class="products-section" id="products">
+  <div class="container">
+    <div class="products-header">
+      <div>
+        <div class="section-label reveal">Nos Créations</div>
+        <h2 class="section-title reveal reveal-delay-1">Galerie de <em>prestige</em></h2>
+      </div>
+      <a href="#catalogue" class="btn-gold reveal reveal-delay-2" style="white-space:nowrap">Voir le catalogue →</a>
+    </div>
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="product-bg" style="background-image:url('cleanroom.jpeg')"></div>
+        <div class="product-overlay"></div>
+        <div class="product-info"><div class="product-label">Collection Signature</div><div class="product-name">Couverture<br>de Chambre</div></div>
+      </div>
+      <div class="product-card">
+        <div class="product-bg" style="background-image:url('dragée.jpeg')"></div>
+        <div class="product-overlay"></div>
+        <div class="product-info"><div class="product-label">Arkade Event</div><div class="product-name">Paniers<br>de Dragées</div></div>
+      </div>
+      <div class="product-card">
+        <div class="product-bg" style="background-image:url('serviette.jpeg')"></div>
+        <div class="product-overlay"></div>
+        <div class="product-info"><div class="product-label">Table & Nappage</div><div class="product-name">Serviettes<br>Décoratives</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CATALOGUE ══ -->
+<section class="catalogue-section" id="catalogue">
+  <div class="container">
+    <div class="catalogue-header">
+      <div class="section-label reveal">Catalogue &amp; Tarifs</div>
+      <h2 class="section-title reveal reveal-delay-1">Nos <em>produits &amp; services</em></h2>
+      <p class="section-desc reveal reveal-delay-2" style="margin:1rem auto 0;text-align:center;">Découvrez nos offres soigneusement conçues pour chaque occasion et chaque budget.</p>
+    </div>
+    <div class="catalogue-tabs reveal">
+      <button class="cat-tab active" onclick="showCat('event',this)">Arkade Event</button>
+      <button class="cat-tab" onclick="showCat('chambre',this)">Couvertures</button>
+      <button class="cat-tab" onclick="showCat('dragee',this)">Dragées</button>
+      <button class="cat-tab" onclick="showCat('construct',this)">Constructing</button>
+    </div>
+
+    <!-- EVENT -->
+    <div class="catalogue-grid" id="cat-event">
+      <div class="cat-card reveal">
+        <div class="cat-img"><img src="imagesdedo.jpg" alt="Pack Essentiel" loading="lazy"/><span class="cat-badge">Populaire</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Décoration Événementielle</div>
+          <div class="cat-name">Pack Essentiel</div>
+          <p class="cat-desc">Décoration élégante pour petites cérémonies jusqu'à 50 personnes. Fleurs, nappage et éclairage ambiance inclus.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">75 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Pack%20Essentiel." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-1">
+        <div class="cat-img"><img src="decoeclairé.jpg" alt="Pack Prestige" loading="lazy"/><span class="cat-badge">Best Seller</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Décoration Événementielle</div>
+          <div class="cat-name">Pack Prestige</div>
+          <p class="cat-desc">Décoration complète pour cérémonies jusqu'à 150 personnes. Arches, nappage premium et éclairage scénique.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">180 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Pack%20Prestige." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-2">
+        <div class="cat-img"><img src="decoprenium.avif" alt="Pack Royal" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Décoration Événementielle</div>
+          <div class="cat-name">Pack Royal</div>
+          <p class="cat-desc">Expérience haut de gamme pour 200+ personnes. Décor sur mesure, fleurs importées, mobilier élégant, équipe dédiée.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">400 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Pack%20Royal." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COUVERTURES -->
+    <div class="catalogue-grid hidden" id="cat-chambre">
+      <div class="cat-card reveal">
+        <div class="cat-img"><img src="suitelove.jpg" alt="Suite Romantique" loading="lazy"/><span class="cat-badge">Nouveau</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Couverture de Chambre</div>
+          <div class="cat-name">Suite Romantique</div>
+          <p class="cat-desc">Habillage complet de chambre avec pétales de roses, bougies LED, voile décoratif et lit en forme de cœur.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">50 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20la%20Suite%20Romantique." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-1">
+        <div class="cat-img"><img src="suiteking.jpg" alt="Suite Royale" loading="lazy"/><span class="cat-badge">Populaire</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Couverture de Chambre</div>
+          <div class="cat-name">Suite Royale</div>
+          <p class="cat-desc">Décoration luxueuse avec baldaquin, fleurs fraîches, linge de lit premium et accessoires dorés.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">150 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20la%20Suite%20Royale." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-2">
+        <div class="cat-img"><img src="s-tableperso.jpg" alt="Serviettes" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Décoration de Table</div>
+          <div class="cat-name">Serviettes &amp; Nappage</div>
+          <p class="cat-desc">Serviettes origami, nappage satiné et décoration de table complète pour sublimer vos réceptions.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">65000</span><span class="cat-price-unit">FCFA / pièce</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20des%20serviettes%20décoratives." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRAGÉES -->
+    <div class="catalogue-grid hidden" id="cat-dragee">
+      <div class="cat-card reveal">
+        <div class="cat-img"><img src="tradi.jpg" alt="Panier Classique" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Panier de Dragées</div>
+          <div class="cat-name">Panier Classique</div>
+          <p class="cat-desc">Panier en osier garni de dragées assorties, ruban satiné et étiquette personnalisée. Lot de 10 unités.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">Lot de 10</span><span class="cat-price-value">25 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Panier%20Classique." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-1">
+        <div class="cat-img"><img src="dragéebte.jpg" alt="Panier Prestige" loading="lazy"/><span class="cat-badge">Best Seller</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Panier de Dragées</div>
+          <div class="cat-name">Panier Prestige</div>
+          <p class="cat-desc">Boîte luxe personnalisée avec prénom, dragées premium, tulle brodé et carte de vœux calligraphiée.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">4 500</span><span class="cat-price-unit">FCFA / unité</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Panier%20Prestige." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-2">
+        <div class="cat-img"><img src="draemariage.jpg" alt="Pack Cérémonie" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Panier de Dragées</div>
+          <div class="cat-name">Pack Cérémonie</div>
+          <p class="cat-desc">Lot de 50 paniers personnalisés identiques pour mariage ou baptême. Design exclusif sur mesure.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">Lot de 50</span><span class="cat-price-value">180 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20le%20Pack%20Cérémonie." class="cat-cta" target="_blank">Commander</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSTRUCTING -->
+    <div class="catalogue-grid hidden" id="cat-construct">
+      <div class="cat-card reveal">
+        <div class="cat-img"><img src="consielimmo.jpg" alt="Conseil Immobilier" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Arkade Constructing</div>
+          <div class="cat-name">Conseil Immobilier</div>
+          <p class="cat-desc">Accompagnement complet pour achat, vente ou location. Analyse de marché, visite et négociation incluses.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">Tarification</span><span class="cat-price-value">Sur RDV</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20un%20conseil%20immobilier." class="cat-cta" target="_blank">Contacter</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-1">
+        <div class="cat-img"><img src="desinterne.jpg" alt="Décoration d'Intérieur" loading="lazy"/><span class="cat-badge">Populaire</span></div>
+        <div class="cat-body">
+          <div class="cat-category">Arkade Constructing</div>
+          <div class="cat-name">Décoration d'Intérieur</div>
+          <p class="cat-desc">Conception de plans d'aménagement, sélection mobilier, suivi travaux et livraison clé en main.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">150 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20une%20décoration%20d'intérieur." class="cat-cta" target="_blank">Devis</a>
+          </div>
+        </div>
+      </div>
+      <div class="cat-card reveal reveal-delay-2">
+        <div class="cat-img"><img src="homestating.jpg" alt="Home Staging" loading="lazy"/></div>
+        <div class="cat-body">
+          <div class="cat-category">Arkade Constructing</div>
+          <div class="cat-name">Home Staging</div>
+          <p class="cat-desc">Valorisation de votre bien pour une vente rapide au meilleur prix. Résultats garantis sous 30 jours.</p>
+          <div class="cat-footer">
+            <div class="cat-price"><span class="cat-price-label">À partir de</span><span class="cat-price-value">500 000</span><span class="cat-price-unit">FCFA</span></div>
+            <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20un%20Home%20Staging." class="cat-cta" target="_blank">Devis</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSTRUCTING -->
+<section class="construct-section" id="construct">
+  <div class="container">
+    <div class="sep reveal"><div class="sep-line"></div><div class="sep-icon">◆</div><div class="sep-line"></div></div>
+    <div class="construct-layout">
+      <div class="construct-visual reveal">
+        <img src="agencer-lespace-interieur.jpg" alt="Arkade Constructing" />
+        <div class="construct-frame"></div>
+        <div class="construct-accent"></div>
+        <div class="construct-accent-br"></div>
+      </div>
+      <div>
+        <div class="section-label reveal">Arkade Constructing</div>
+        <h2 class="section-title reveal reveal-delay-1">Votre espace,<br>notre <em>vision</em></h2>
+        <div class="divider reveal reveal-delay-2"></div>
+        <p class="section-desc reveal reveal-delay-2">Arkade Constructing accompagne vos projets immobiliers avec expertise et esthétisme. De l'acquisition à la transformation intérieure, nous créons des espaces qui vous ressemblent.</p>
+        <div class="construct-services reveal reveal-delay-3">
+          <div class="cs-item"><div class="cs-num">01</div><div class="cs-title">Conseil Immobilier</div><div class="cs-desc">Accompagnement personnalisé dans vos projets d'achat et de vente.</div></div>
+          <div class="cs-item"><div class="cs-num">02</div><div class="cs-title">Décoration d'Intérieur</div><div class="cs-desc">Design d'espaces sur mesure avec des matériaux de première qualité.</div></div>
+          <div class="cs-item"><div class="cs-num">03</div><div class="cs-title">Rénovation &amp; Travaux</div><div class="cs-desc">Gestion complète de vos travaux de rénovation et d'aménagement.</div></div>
+          <div class="cs-item"><div class="cs-num">04</div><div class="cs-title">Home Staging</div><div class="cs-desc">Valorisation de biens immobiliers pour une mise en vente optimale.</div></div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;">
+          <a href="#contact" class="btn-primary"><span>Demander un devis</span></a>
+          <a href="https://wa.me/2250749110087?text=Bonjour%2C%20je%20veux%20en%20savoir%20plus%20sur%20Arkade%20Constructing." class="btn-gold" target="_blank">WhatsApp →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TÉMOIGNAGES -->
+<section class="testimonials-section">
+  <div class="container" style="margin-bottom:3rem">
+    <div class="section-label reveal" style="text-align:center">Témoignages</div>
+    <h2 class="section-title reveal" style="text-align:center">Ce que disent <em>nos clients</em></h2>
+  </div>
+  <div class="testimonials-track">
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">La décoration de notre suite nuptiale était absolument magnifique. Arkade Event a dépassé toutes nos attentes.</p><div class="testi-author"><div class="testi-avatar">A</div><div><div class="testi-name">Amina Koné</div><div class="testi-role">Mariée — Abidjan</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Arkade Constructing a transformé notre appartement en un véritable havre de paix. Le résultat est époustouflant.</p><div class="testi-author"><div class="testi-avatar">D</div><div><div class="testi-name">David Mensah</div><div class="testi-role">Propriétaire</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Les paniers de dragées pour notre baptême étaient d'une finesse extraordinaire. Tous les invités étaient sous le charme.</p><div class="testi-author"><div class="testi-avatar">F</div><div><div class="testi-name">Fatou Diallo</div><div class="testi-role">Maman comblée</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Service professionnel et créatif. L'équipe Arkade a sublimé notre salle de réception avec une décoration élégante.</p><div class="testi-author"><div class="testi-avatar">K</div><div><div class="testi-name">Kouamé Yao</div><div class="testi-role">Directeur d'entreprise</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">La décoration de notre suite nuptiale était absolument magnifique. Arkade Event a dépassé toutes nos attentes.</p><div class="testi-author"><div class="testi-avatar">A</div><div><div class="testi-name">Amina Koné</div><div class="testi-role">Mariée — Abidjan</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Arkade Constructing a transformé notre appartement en un véritable havre de paix. Le résultat est époustouflant.</p><div class="testi-author"><div class="testi-avatar">D</div><div><div class="testi-name">David Mensah</div><div class="testi-role">Propriétaire</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Les paniers de dragées pour notre baptême étaient d'une finesse extraordinaire. Tous les invités étaient sous le charme.</p><div class="testi-author"><div class="testi-avatar">F</div><div><div class="testi-name">Fatou Diallo</div><div class="testi-role">Maman comblée</div></div></div></div>
+    <div class="testi-card"><div class="testi-quote">"</div><p class="testi-text">Service professionnel et créatif. L'équipe Arkade a sublimé notre salle de réception avec une décoration élégante.</p><div class="testi-author"><div class="testi-avatar">K</div><div><div class="testi-name">Kouamé Yao</div><div class="testi-role">Directeur d'entreprise</div></div></div></div>
+  </div>
+</section>
+
+<!-- PROCESSUS -->
+<section class="process-section" id="process">
+  <div class="container">
+    <div class="process-title">
+      <div class="section-label reveal">Notre Démarche</div>
+      <h2 class="section-title reveal reveal-delay-1">De l'idée à la <em>réalisation</em></h2>
+    </div>
+    <div class="process-steps">
+      <div class="process-step reveal"><div class="step-circle">1</div><div class="step-title">Consultation</div><p class="step-desc">Nous prenons le temps de comprendre vos souhaits, votre vision et vos contraintes.</p></div>
+      <div class="process-step reveal reveal-delay-1"><div class="step-circle">2</div><div class="step-title">Conception</div><p class="step-desc">Nos créatifs élaborent des propositions sur mesure adaptées à votre projet.</p></div>
+      <div class="process-step reveal reveal-delay-2"><div class="step-circle">3</div><div class="step-title">Validation</div><p class="step-desc">Nous affinons ensemble chaque détail jusqu'à votre satisfaction totale.</p></div>
+      <div class="process-step reveal reveal-delay-3"><div class="step-circle">4</div><div class="step-title">Livraison</div><p class="step-desc">Réalisation et livraison dans les délais avec un suivi rigoureux.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2 class="cta-title">Concrétisons<br>votre <em>projet</em></h2>
+      <p class="cta-sub">Que ce soit pour un événement d'exception ou un projet immobilier, notre équipe est à votre disposition.</p>
+      <div class="cta-actions">
+        <a href="mailto:contact@arkadegroup.ci" class="btn-primary"><span>Écrire un message</span></a>
+        <a href="https://wa.me/2250749110087" class="btn-gold" target="_blank">WhatsApp · +225 07 49 11 00 87</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <img src="arkad-removebg-preview.png" alt="Arkade Group" class="footer-logo-img" />
+        <p class="footer-about">Excellence en événementiel et immobilier. Deux divisions, une seule obsession : vous offrir le meilleur.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-icon" aria-label="Instagram">In</a>
+          <a href="https://www.facebook.com/share/p/1aXMrE1wCv/" class="social-icon" aria-label="Facebook">Fb</a>
+          <a href="https://wa.me/2250749110087" class="social-icon" aria-label="WhatsApp" target="_blank">Wa</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Arkade Event</h4>
+        <ul>
+          <li><a href="#event">Couverture de chambre</a></li>
+          <li><a href="#event">Décoration événementielle</a></li>
+          <li><a href="#catalogue">Paniers de dragées</a></li>
+          <li><a href="#catalogue">Accessoires personnalisés</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Arkade Constructing</h4>
+        <ul>
+          <li><a href="#construct">Conseil immobilier</a></li>
+          <li><a href="#construct">Décoration d'intérieur</a></li>
+          <li><a href="#construct">Rénovation &amp; travaux</a></li>
+          <li><a href="#catalogue">Home Staging</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="https://maps.app.goo.gl/h4qkU4UUFyk7Yxk66">Abidjan, Côte d'Ivoire</a></li>
+          <li><a href="tel:+2250749110087">+225 07 49 11 00 87</a></li>
+          <li><a href="mailto:#">#@gmail.com</a></li>
+          <li><a href="#catalogue">Obtenir un devis</a></li>
+          <li><a href="https://christoth-king.github.io/Kode-ldev/">kode-ldev.io</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 Arkade Group · Tous droits réservés</p>
+      <div class="footer-legal"><a href="#">Mentions légales</a><a href="#">Confidentialité</a></div>
+      
+    </div>
+  </div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function anim(){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+  document.querySelectorAll('a,button,.service-card,.product-card,.cs-item,.cat-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.8)';ring.style.borderColor='rgba(201,168,76,0.8)';});
+    el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(201,168,76,0.5)';});
+  });
+
+  // NAV SCROLL
+  const navbar=document.getElementById('navbar');
+  window.addEventListener('scroll',()=>navbar.classList.toggle('scrolled',window.scrollY>60));
+
+  // HAMBURGER
+  const ham=document.getElementById('hamburger');
+  const mm=document.getElementById('mobileMenu');
+  ham.addEventListener('click',()=>mm.classList.toggle('open'));
+  function closeMobileMenu(){mm.classList.remove('open');}
+
+  // CATALOGUE TABS
+  function showCat(id,btn){
+    document.querySelectorAll('.catalogue-grid').forEach(g=>g.classList.add('hidden'));
+    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+    const grid=document.getElementById('cat-'+id);
+    grid.classList.remove('hidden');
+    btn.classList.add('active');
+    grid.querySelectorAll('.reveal').forEach(el=>{el.classList.remove('visible');setTimeout(()=>el.classList.add('visible'),60);});
+  }
+
+  // REVEAL
+  const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
